@@ -18,6 +18,8 @@ var app = builder.Build();
 // === БЛОК АВТОМАТИЧЕСКОГО СОЗДАНИЯ ДИРЕКТОРА (Data Seeding) ===
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate(); // Эта команда автоматически создаст все таблицы при запуске!
     var userManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser>>();
 
     string adminEmail = "director@ds.kz";
