@@ -1,13 +1,16 @@
-# Используем образ с SDK для сборки проекта (укажи 6.0, если проект на .NET 6)
+# Используем образ с SDK для сборки проекта
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Копируем файл проекта и восстанавливаем зависимости
-COPY ["CollegeProcurementDSS.csproj", "./"]
-RUN dotnet restore "./CollegeProcurementDSS.csproj"
+# Указываем правильный путь с учетом подпапки Visual Studio
+COPY ["CollegeProcurementDSS/CollegeProcurementDSS.csproj", "CollegeProcurementDSS/"]
+RUN dotnet restore "CollegeProcurementDSS/CollegeProcurementDSS.csproj"
 
-# Копируем весь остальной код и собираем
+# Копируем весь остальной код проекта
 COPY . .
+
+# Переходим в подпапку с кодом и собираем проект
+WORKDIR "/src/CollegeProcurementDSS"
 RUN dotnet publish "CollegeProcurementDSS.csproj" -c Release -o /app/publish
 
 # Берем легкий образ для запуска (без SDK)
