@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: dss_web
+    restart: always
+    ports:
+      - "8082:80" # Внешний порт 8082 (свободный), внутренний 80
+    environment:
+      # Переопределяем строку подключения из appsettings.json. Host=db указывает на контейнер с Postgres
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=CollegeProcurementDB;Username=postgres;Password=YourStrongPassword123!
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: dss_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: YourStrongPassword123!
+      POSTGRES_DB: CollegeProcurementDB
+    ports:
+      - "5433:5432" # Прокидываем БД наружу на порт 5433 (на всякий случай, если 5432 занят на сервере)
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: # Сохраняет данные БД, чтобы они не удалились при перезапуске контейнера
