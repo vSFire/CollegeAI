@@ -1,0 +1,70 @@
+﻿@model IEnumerable<CollegeProcurementDSS.Models.PricePrediction>
+
+<div class="container mt-4">
+    <h2>📊 Панель управления закупками (СППР)</h2>
+    <div class="alert alert-info shadow-sm d-flex justify-content-between align-items-center mb-4 border-start border-info border-4">
+        <div>
+            <i class="fs-5 me-2">🌐</i>
+            <strong>Live Data API:</strong> Официальный курс Национального Банка РК на @ViewBag.LiveUsdDate
+        </div>
+        <div class="fs-4 fw-bold text-success bg-white px-3 py-1 rounded border">
+            1 USD = @ViewBag.LiveUsdRate ₸
+        </div>
+    </div>
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Интерактивный прогноз модели</h5>
+            <p class="text-muted">Анализ сценариев бюджетирования</p>
+            <div style="height: 400px; background-color: #f8f9fa; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center;">
+                <iframe title="22" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiMWIxZDE4NzYtYWYxZi00OWY2LWEwMTgtYTc2YWM0NTM1MGE5IiwidCI6IjcwYzExNTdhLTk0MWMtNGIzOS05OGU2LWEwNjM0ZjI3NTllNyIsImMiOjl9" frameborder="0" allowFullScreen="true"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <a href="/Dashboard/Index?filter=all" class="btn btn-outline-secondary @(ViewBag.CurrentFilter == "all" ? "active" : "")">Все товары</a>
+        <a href="/Dashboard/Index?filter=critical" class="btn btn-outline-danger @(ViewBag.CurrentFilter == "critical" ? "active" : "")">🔴 Критический рост (>10%)</a>
+        <a href="/Dashboard/Index?filter=optimistic" class="btn btn-outline-success @(ViewBag.CurrentFilter == "optimistic" ? "active" : "")">🟢 Ожидается спад цены</a>
+    </div>
+
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Дата</th>
+                <th>Наименование</th>
+                <th>Текущая цена</th>
+                <th>Прогноз модели</th>
+                <th>Тренд</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td><b>@item.Item_Name</b></td>
+                    <td>@item.Real_Price_KZT.ToString("N0") ₸</td>
+                    <td>@item.AI_Predicted_Price_KZT.ToString("N0") ₸</td>
+                    <td>
+                        @if (item.PriceDiffPercent > 10)
+                        {
+                            <span class="badge bg-danger">Рост @item.PriceDiffPercent.ToString("F1")%</span>
+                        }
+                        else if (item.PriceDiffPercent < 0)
+                        {
+                            <span class="badge bg-success">Спад @item.PriceDiffPercent.ToString("F1")%</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Стабильно</span>
+                        }
+                    </td>
+                    <td>
+                        <a href="/Dashboard/GenerateDoc?id=@item.Id" class="btn btn-sm btn-primary">Сгенерировать приказ</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
